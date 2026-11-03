@@ -1,0 +1,112 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum RecipientType {
+  EMAIL
+  SMS
+}
+
+enum SummaryDetailLevel {
+  SIMPLE
+  MEDIUM
+  DETAILED
+}
+
+enum SupportSignalType {
+  FEELING_DOWN
+}
+
+model User {
+  id           String   @id @default(cuid())
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  email        String @unique
+  passwordHash String
+
+  // One bundle per user (account-based "cloud save")
+  data AccountData?
+
+  // Opt-in sharing controls (weekly summary)
+  sharing SharingSettings?
+
+  // Feeling down pings (logs only)
+  signals SupportSignal[]
+}
+
+/**
+ * Stores the entire app bundle as plaintext JSON.
+ * (Local-first still exists in IndexedDB; this is only for account sync.)
+ */
+model AccountData {
+  id        String   @id @default(cuid())
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  userId String @unique
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  bundle  Json
+  version Int @default(1)
+}
+
+/**
+ * Weekly summary sharing (opt-in).
+ * Backend can deliver on schedule, or you can "Send now".
+ */
+model SharingSettings {
+  id        String   @id @default(cuid())
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  userId String @unique
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  enabled Boolean @default(false)
+
+  recipientType  RecipientType?
+  recipientValue String?
+  detailLevel    SummaryDetailLevel @default(SIMPLE)
+
+  includeGoals    Boolean @default(true)
+  includeMood     Boolean @default(true)
+  includeWins     Boolean @default(true)
+  includeSelfCare Boolean @default(false)
+
+  // schedule (local time)
+  sendWeekday Int? // 0=Sun..6=Sat
+  sendHour    Int?
+  sendMinute  Int?
+
+  paused     Boolean  @default(false)
+  lastSentAt DateTime?
+
+  consentedAt DateTime?
+}
+
+/**
+ * Feeling Down mode (NOT a crisis feature).
+ * Logs what was sent + status. No app data is attached.
+ */
+model SupportSignal {
+  id        String   @id @default(cuid())
+  createdAt DateTime @default(now())
+
+  userId String
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  type           SupportSignalType
+  recipientType  RecipientType
+  recipientValue String
+  optionalNote   String?
+
+  deliveredAt   DateTime?
+  status        String   @default("QUEUED") // QUEUED|SENT|FAILED
+  providerMsgId String?
+}

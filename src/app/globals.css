@@ -1,0 +1,67 @@
+/* ---------- Base reset ---------- */
+* { box-sizing: border-box; }
+
+html,
+body {
+  padding: 0;
+  margin: 0;
+  width: 100%;
+  min-height: 100vh;
+  font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Arial;
+}
+
+a { color: inherit; text-decoration: none; }
+
+/* ---------- Text size preference ---------- */
+:root[data-text="large"] { font-size: 18px; }
+
+/* ---------- Theme variables (LIGHT by default) ---------- */
+:root{
+  --bg0: #f6f1ff;
+  --bg1: #efe6ff;
+  --card: rgba(255, 255, 255, 0.82);
+  --card2: rgba(255, 255, 255, 0.70);
+  --text: #1b1230;
+  --muted: rgba(27, 18, 48, 0.70);
+  --border: rgba(124, 58, 237, 0.16);
+}
+
+/* ✅ support BOTH forms */
+:root[data-theme="dark"],
+html.dark{
+  --bg0: #0b1020;
+  --bg1: #0a0f1c;
+  --card: rgba(17, 24, 39, 0.72);
+  --card2: rgba(17, 24, 39, 0.55);
+  --text: #e4e7f3;
+  --muted: rgba(238, 242, 255, 0.72);
+  --border: rgba(167, 139, 250, 0.22);
+}
+
+html, body{
+  background: var(--bg0);
+  color: var(--text);
+}
+
+
+
+/* ---------- App background wrapper ---------- */
+/* Use <div className="ci-bg"> around your pages (or in layout) */
+.ci-bg{
+  min-height: 100vh;
+  width: 100%;
+  background:
+    radial-gradient(1200px 700px at 20% 0%, rgba(124,58,237,.18), transparent 58%),
+    radial-gradient(900px 600px at 90% 10%, rgba(167,139,250,.16), transparent 60%),
+    radial-gradient(900px 600px at 60% 90%, rgba(91,33,182,.10), transparent 62%),
+    linear-gradient(180deg, #faf7ff, #f3edff);
+}
+
+/* Dark version of the ci-bg wrapper */
+:root[data-theme="dark"] .ci-bg{
+  background:
+    radial-gradient(1200px 600px at 20% 0%, rgba(124,58,237,.45), transparent 55%),
+    radial-gradient(900px 500px at 90% 10%, rgba(167,139,250,.30), transparent 55%),
+    radial-gradient(900px 500px at 60% 90%, rgba(91,33,182,.22), transparent 60%),
+    linear-gradient(180deg, #0b0614, #07030f);
+}
